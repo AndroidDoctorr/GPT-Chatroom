@@ -1,0 +1,87 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: black;
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: #aaa;
+}
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 50vw;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #fff;
+}
+.section {
+  border: thin solid gray;
+  margin: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+.section-row {
+  display: flex;
+  flex-direction: row;
+}
+.section-row > button {
+  width: 10rem;
+}
+.list {
+  width: 100%;
+  overflow-y: scroll;
+  padding: 2rem;
+}
+.conversation {
+  height: 10rem;
+}
+.participantList {
+  height: 4rem;
+}
+.modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.modalContent {
+  background-color: white;
+  padding: 16px;
+  border-radius: 4px;
+  width: 50vw;
+}
+.participant {
+  background-color: #eee;
+  margin: 0.5rem;
+}
+.promptInput {
+  height: 6rem;
+}
+.fullwidth {
+  width: 100%;
+}
