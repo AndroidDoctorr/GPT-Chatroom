@@ -1,5 +1,12 @@
 import React, { useState } from 'react'
-import { TextField, Button, Modal } from '@mui/material'
+import {
+    TextField,
+    Button,
+    Modal,
+    FormControlLabel,
+    Checkbox,
+} from '@mui/material'
+import { getRandomColor } from '../utils/color'
 
 const ParticipantModal = ({
     isModalOpen,
@@ -8,14 +15,21 @@ const ParticipantModal = ({
 }) => {
     const defaultParticipant = {
         name: '',
-        prompt: '',
-        color: '#aaa',
+        color: getRandomColor(),
         temperature: 0.2,
     }
     const [newParticipant, setNewParticipant] = useState(defaultParticipant)
+    const [hasStartPrompt, setHasStartPrompt] = useState(true)
+    const [hasEndPrompt, setHasEndPrompt] = useState(false)
+    const [startPrompt, setStartPrompt] = useState('')
+    const [endPrompt, setEndPrompt] = useState('')
 
     const handleCreateParticipant = () => {
-        addNewParticipant(newParticipant)
+        addNewParticipant(
+            newParticipant,
+            hasStartPrompt ? startPrompt : '',
+            hasEndPrompt ? endPrompt : ''
+        )
         setNewParticipant(defaultParticipant)
         setIsModalOpen(false)
     }
@@ -36,13 +50,6 @@ const ParticipantModal = ({
 
     const setRandomColor = () => {
         setNewParticipant({ ...newParticipant, color: getRandomColor() })
-    }
-
-    const getRandomColor = () => {
-        // Generate a random color in hexadecimal format
-        const randomColor =
-            '#' + Math.floor(Math.random() * 16777215).toString(16)
-        return randomColor
     }
 
     return (
@@ -76,19 +83,50 @@ const ParticipantModal = ({
                         }
                         fullWidth
                     />
-                    <TextField
-                        label='Prompt'
-                        rows={4}
-                        multiline
-                        value={newParticipant.prompt}
-                        onChange={(e) =>
-                            setNewParticipant({
-                                ...newParticipant,
-                                prompt: e.target.value,
-                            })
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={hasStartPrompt}
+                                onChange={(e) =>
+                                    setHasStartPrompt(e.target.checked)
+                                }
+                                inputProps={{ 'aria-label': 'controlled' }}
+                            />
                         }
-                        fullWidth
+                        label='Prompt before existing conversation'
                     />
+                    {hasStartPrompt && (
+                        <TextField
+                            label='Start Prompt'
+                            rows={4}
+                            multiline
+                            value={startPrompt}
+                            onChange={(e) => setStartPrompt(e.target.value)}
+                            fullWidth
+                        />
+                    )}
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={hasEndPrompt}
+                                onChange={(e) =>
+                                    setHasEndPrompt(e.target.checked)
+                                }
+                                inputProps={{ 'aria-label': 'controlled' }}
+                            />
+                        }
+                        label='Prompt after existing conversation'
+                    />
+                    {hasEndPrompt && (
+                        <TextField
+                            label='End Prompt'
+                            rows={4}
+                            multiline
+                            value={endPrompt}
+                            onChange={(e) => setEndPrompt(e.target.value)}
+                            fullWidth
+                        />
+                    )}
                     <TextField
                         label='Temperature'
                         type='number'

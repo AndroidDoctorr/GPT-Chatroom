@@ -86,7 +86,7 @@ const Conversation = () => {
 
     const logConversation = () => {}
 
-    const addNewParticipant = (newParticipant) => {
+    const addNewParticipant = (newParticipant, startPrompt, endPrompt) => {
         setParticipants([...participants, newParticipant])
     }
 
