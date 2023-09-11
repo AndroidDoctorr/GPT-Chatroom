@@ -11,7 +11,7 @@ import {
 } from '@mui/material'
 
 const ParticipantModal = ({ isModalOpen, setIsModalOpen, addNewParticipant }) => {
-  const defaultParticipant = { name: '', prompt: '', temperature: 0.2 }
+  const defaultParticipant = { name: '', prompt: '', color: '#aaa', temperature: 0.2 }
   const [newParticipant, setNewParticipant] = useState(defaultParticipant)
 
   const handleCreateParticipant = () => {
@@ -34,19 +34,39 @@ const ParticipantModal = ({ isModalOpen, setIsModalOpen, addNewParticipant }) =>
     setNewParticipant({ ...newParticipant, temperature: newTemperature })
   }
 
+  const setRandomColor = () => {
+    setNewParticipant({ ...newParticipant, color: getRandomColor() })
+  }
+
+  const getRandomColor = () => {
+    // Generate a random color in hexadecimal format
+    const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16)
+    return randomColor
+  }
+
   return (
     <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)} className='modal'>
       <div className='modalContent'>
         <h2>Add Participant</h2>
-        <div className="section">
+        <Button
+          variant='contained'
+          color='primary'
+          onClick={setRandomColor}>
+          Color
+        </Button>
+        <div
+          className='colorSample'
+          style={{ backgroundColor: newParticipant.color }}>
+        </div>
+        <div className='section'>
         <TextField
-          label="Name"
+          label='Name'
           value={newParticipant.name}
           onChange={(e) => setNewParticipant({ ...newParticipant, name: e.target.value })}
           fullWidth
         />
         <TextField
-          label="Prompt"
+          label='Prompt'
           rows={4}
           multiline
           value={newParticipant.prompt}
@@ -54,14 +74,14 @@ const ParticipantModal = ({ isModalOpen, setIsModalOpen, addNewParticipant }) =>
           fullWidth
         />
         <TextField
-          label="Temperature"
-          type="number"
+          label='Temperature'
+          type='number'
           inputProps={{ min: 0.0, max: 2.0, step: 0.01 }}
           value={newParticipant.temperature}
           onChange={handleTemperatureChange}
         />
         </div>
-        <Button variant="contained" color="primary" onClick={handleCreateParticipant}>
+        <Button variant='contained' color='primary' onClick={handleCreateParticipant}>
           Create
         </Button>
       </div>

@@ -3,7 +3,7 @@ import React from 'react'
 const ChatMessage = ({ chatMessage }) => {
   return (
     <div>
-      <span>{chatMessage.name}</span>
+      <Avatar participant={chatMessage.participant} />
       <span>{chatMessage.content}</span>
     </div>
   )

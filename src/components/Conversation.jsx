@@ -9,17 +9,20 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  FormGroup,
 } from '@mui/material'
 import ParticipantModal from './ParticipantModal'
 import { ChatClient } from 'gpt-tools'
+import ChatMessage from './ChatMessage'
+import Participant from './Participant'
 
+// const client = new ChatClient()
 const initialParticipants = []
 const initialMessages = []
 
 const Conversation = () => {
   const [participants, setParticipants] = useState(initialParticipants)
   const [messages, setMessages] = useState(initialMessages)
+  const [hostMessage, setHostMessage] = useState('')
   const [target, setTarget] = useState('audience')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [temperature, setTemperature] = useState(0.2)
@@ -38,14 +41,25 @@ const Conversation = () => {
     setIsModalOpen(true)
   }
 
-  const handleSendMessage = async () => {
-    // Implement your API call here using your library
-    const client = new ChatClient()
-    const response = await client.continueConversation(messages, model, temperature)
+  const addHostMessage = () => {
+    const newMessage = {
+      role: isSystem ? 'system' : 'user',
+      participant: {
+        name: isSystem ? 'System' : 'Host',
+        color: '#ccc',
+      },
+      content: hostMessage,
+    }
+
+    setMessages([...messages, newMessage])
+    setHostMessage('')
+  }
+
+  const handleSendMessage = async ({ messages, model, temperature }) => {
+    const response = await ChatClient.continueConversation(messages, model, temperature)
 
     const newMessage = {
-      role: 'user',
-      name: 'Host',
+      role: 'assistant',
       content: response,
     }
 
@@ -76,16 +90,17 @@ const Conversation = () => {
 
   return (
     <div className='container'>
+
       {/* Input Section */}
       <div className='section fullwidth'>
         <div className='section-row'>
           <FormControl>
             <InputLabel>To:</InputLabel>
             <Select value={target} onChange={handleParticipantChange}>
-              <MenuItem value="audience">Audience</MenuItem>
-              <MenuItem value="all">All Participants</MenuItem>
+              <MenuItem value='audience'>Audience</MenuItem>
+              <MenuItem value='all'>All Participants</MenuItem>
               {participants.map((participant) => (
-                <MenuItem key={participant.id} value={participant.name}>
+                <MenuItem key={participant.name} value={participant.name}>
                   {participant.name}
                 </MenuItem>
               ))}
@@ -93,8 +108,8 @@ const Conversation = () => {
           </FormControl>
           <FormControl>
             <TextField
-              label="Temperature"
-              type="number"
+              label='Temperature'
+              type='number'
               inputProps={{ min: 0.0, max: 2.0, step: 0.01 }}
               value={temperature}
               onChange={handleTemperatureChange}
@@ -112,8 +127,14 @@ const Conversation = () => {
           />
         </div>
         <div className='section-row'>
-          <TextField label="Host" variant="outlined" fullWidth />
-          <Button variant="contained" color="primary" onClick={handleSendMessage}>
+          <TextField
+            label='Host'
+            variant='outlined'
+            fullWidth
+            value={hostMessage}
+            onChange={e => setHostMessage(e.target.value)}
+          />
+          <Button variant='contained' color='primary' onClick={addHostMessage}>
             {'Say'}
           </Button>
         </div>
@@ -124,9 +145,7 @@ const Conversation = () => {
         <div className='section-row'>
           <Paper className='list conversation'>
             {messages.map((message, index) => (
-              <div key={index}>
-                {message.role}: {message.content}
-              </div>
+              <ChatMessage key={index} chatMessage={message} participant={participant} />
             ))}
           </Paper>
         </div>
@@ -137,13 +156,11 @@ const Conversation = () => {
         <div className='section-row'>
           <Paper className='list participantList'>
             {participants.map((participant, index) => (
-              <div className='participant' key={index}>
-                {participant.name}
-              </div>
+              <Participant key={index} participant={participant} />
             ))}
           </Paper>
         </div>
-        <Button variant="contained" color="primary" onClick={handleAddParticipant}>
+        <Button variant='contained' color='primary' onClick={handleAddParticipant}>
           Add Participant
         </Button>
       </div>
@@ -152,9 +169,10 @@ const Conversation = () => {
       <ParticipantModal addNewParticipant={addNewParticipant} setIsModalOpen={setIsModalOpen} isModalOpen={isModalOpen} />
 
       {/* Log Conversation */}
-      <Button variant="contained" color="secondary" onClick={logConversation}>
+      <Button variant='contained' color='secondary' onClick={logConversation}>
         Log Conversation
       </Button>
+      
     </div>
   )
 }

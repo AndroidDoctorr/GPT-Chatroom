@@ -85,3 +85,11 @@ body {
 .fullwidth {
   width: 100%;
 }
+.colorSample {
+  top: 0.5rem;
+  margin-left: 1rem;
+  display: inline-flex;
+  width: 6rem;
+  height: 2rem;
+  position: relative;
+}
