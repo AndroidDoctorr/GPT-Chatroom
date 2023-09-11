@@ -13,7 +13,12 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 }
-
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
 a {
   font-weight: 500;
   color: #646cff;
@@ -56,10 +61,19 @@ body {
 .list {
   width: 100%;
   overflow-y: scroll;
-  padding: 2rem;
+  padding: 1rem;
 }
 .conversation {
-  height: 10rem;
+  height: 20rem;
+}
+.chatMessage {
+    display: flex;
+    margin: 4px 0;
+}
+.chatMessage > span {
+    flex-grow: 1;
+    margin: 0 1rem;
+    text-align: start;
 }
 .participantList {
   height: 4rem;
