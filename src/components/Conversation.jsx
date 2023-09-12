@@ -15,6 +15,7 @@ import ParticipantModal from './ParticipantModal'
 import { ChatClient } from 'gpt-tools'
 import ChatMessage from './ChatMessage'
 import Participant from './Participant'
+import BouncingDotsLoader from './BouncingLoader'
 
 // const client = new ChatClient()
 const initialParticipants = []
@@ -209,9 +210,9 @@ const Conversation = () => {
                                 participant={message.participant}
                             />
                         ))}
+                        {isLoading && <BouncingDotsLoader />}
                     </Paper>
                 </div>
-                {isLoading && <LinearProgress />}
             </div>
 
             {/* Participants Section */}
