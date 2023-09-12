@@ -9,6 +9,7 @@ import {
     InputLabel,
     Select,
     MenuItem,
+    LinearProgress,
 } from '@mui/material'
 import ParticipantModal from './ParticipantModal'
 import { ChatClient } from 'gpt-tools'
@@ -28,6 +29,7 @@ const Conversation = () => {
     const [temperature, setTemperature] = useState(0.2)
     const [model, setModel] = useState('gpt-3.5-turbo')
     const [isSystem, setIsSystem] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
 
     const handleAddresseeChange = (event) => {
         const name = event.target.value
@@ -67,11 +69,13 @@ const Conversation = () => {
     }
 
     const continueConversation = async (messages, model, temperature) => {
+        setIsLoading(true)
         const response = await ChatClient.continueConversation(
             messages,
             model,
             temperature
         )
+        setIsLoading(false)
 
         return {
             role: 'assistant',
@@ -193,7 +197,9 @@ const Conversation = () => {
             </div>
 
             {/* Conversation Section */}
+
             <div className='section fullwidth'>
+                {isLoading && <LinearProgress />}
                 <div className='section-row'>
                     <Paper className='list conversation'>
                         {messages.map((message, index) => (
@@ -205,6 +211,7 @@ const Conversation = () => {
                         ))}
                     </Paper>
                 </div>
+                {isLoading && <LinearProgress />}
             </div>
 
             {/* Participants Section */}
