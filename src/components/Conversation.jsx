@@ -12,12 +12,11 @@ import {
     LinearProgress,
 } from '@mui/material'
 import ParticipantModal from './ParticipantModal'
-import { ChatClient } from 'gpt-tools'
+import { GPTClient } from 'gpt-tools'
 import ChatMessage from './ChatMessage'
 import Participant from './Participant'
 import BouncingDotsLoader from './BouncingLoader'
 
-// const client = new ChatClient()
 const initialParticipants = []
 const initialMessages = []
 
@@ -31,6 +30,9 @@ const Conversation = () => {
     const [model, setModel] = useState('gpt-3.5-turbo')
     const [isSystem, setIsSystem] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
+
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY
+    const client = new GPTClient(apiKey)
 
     const handleAddresseeChange = (event) => {
         const name = event.target.value
@@ -51,7 +53,7 @@ const Conversation = () => {
                 name: isSystem ? 'System' : 'Host',
                 color: '#ccc',
             },
-            content: hostMessage,
+            content: '' + hostMessage,
         }
 
         setMessages([...messages, newMessage])
@@ -62,16 +64,12 @@ const Conversation = () => {
             }
         })
 
-        // await Promise.all(participants.map(async (p) => {
-        //     await chatToParticipant(p, hostMessage)
-        // }))
-
         setHostMessage('')
     }
 
     const continueConversation = async (messages, model, temperature) => {
         setIsLoading(true)
-        const response = await ChatClient.continueConversation(
+        const response = await client.continueConversation(
             messages,
             model,
             temperature
@@ -101,23 +99,29 @@ const Conversation = () => {
     const addNewParticipant = (newParticipant, doResponseNow) => {
         setParticipants([...participants, newParticipant])
 
-        if (doResponseNow) {
-            chatToParticipant(newParticipant, newParticipant.endPrompt, true)
+        if (doResponseNow && !!newParticipant.introPrompt) {
+            chatToParticipant(newParticipant, newParticipant.introPrompt, true)
         }
     }
 
     const chatToParticipant = async (participant, prompt, isSystem) => {
-        const conversation = [
-            {
-                role: 'system',
-                content: participant.startPrompt,
-            },
-            ...messages,
-            {
-                role: isSystem ? 'system' : user,
-                content: prompt,
-            },
-        ]
+        const messagesFiltered = []
+        messages.forEach((m) => {
+            messagesFiltered.push({
+                role: m.role,
+                content: m.content,
+            })
+        })
+
+        const setupMessage = {
+            role: 'system',
+            content: participant.setupPrmopt,
+        }
+        const hostMessage = {
+            role: isSystem ? 'system' : 'user',
+            content: prompt,
+        }
+        const conversation = [setupMessage, ...messagesFiltered, hostMessage]
 
         const responseMessage = await continueConversation(
             conversation,
@@ -126,12 +130,14 @@ const Conversation = () => {
         )
 
         const newMessage = {
-            role: 'assistant',
             participant,
-            content: responseMessage,
+            ...responseMessage,
         }
 
-        setMessages([...messages, newMessage])
+        const newHistory = [...messages]
+        if (hostMessage.role == 'user') newHistory.push(hostMessage)
+        newHistory.push(newMessage)
+        setMessages(newHistory)
     }
 
     const logConversation = () => {}

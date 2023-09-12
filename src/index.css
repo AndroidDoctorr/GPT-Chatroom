@@ -70,6 +70,9 @@ body {
     display: flex;
     margin: 4px 0;
 }
+.chatMessage:nth-child(even) {
+  background-color: #efefef;
+}
 .chatMessage > span {
     flex-grow: 1;
     margin: 0 1rem;

@@ -17,6 +17,7 @@ const ParticipantModal = ({
         name: '',
         color: getRandomColor(),
         temperature: 0.2,
+        setupPrmopt: '',
     }
     const [newParticipant, setNewParticipant] = useState(defaultParticipant)
     const [doResponseNow, setDoResponseNow] = useState(true)
@@ -25,10 +26,6 @@ const ParticipantModal = ({
     const [introPrompt, setIntroPrompt] = useState('')
 
     const handleCreateParticipant = () => {
-        if (!hasSetupPrompt && !hasSetupPrompt) {
-            alert('At least one prompt is required!')
-            return
-        }
         newParticipant.setupPrmopt = setupPrompt
         newParticipant.introPrompt = hasIntroPrompt ? introPrompt : ''
         addNewParticipant(newParticipant, doResponseNow)
