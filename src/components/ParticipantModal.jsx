@@ -19,18 +19,22 @@ const ParticipantModal = ({
         temperature: 0.2,
     }
     const [newParticipant, setNewParticipant] = useState(defaultParticipant)
-    const [hasStartPrompt, setHasStartPrompt] = useState(true)
-    const [hasEndPrompt, setHasEndPrompt] = useState(false)
-    const [startPrompt, setStartPrompt] = useState('')
-    const [endPrompt, setEndPrompt] = useState('')
+    const [doResponseNow, setDoResponseNow] = useState(true)
+    const [hasIntroPrompt, setHasIntroPrompt] = useState(false)
+    const [setupPrompt, setSetupPrompt] = useState('')
+    const [introPrompt, setIntroPrompt] = useState('')
 
     const handleCreateParticipant = () => {
-        addNewParticipant(
-            newParticipant,
-            hasStartPrompt ? startPrompt : '',
-            hasEndPrompt ? endPrompt : ''
-        )
+        if (!hasSetupPrompt && !hasSetupPrompt) {
+            alert('At least one prompt is required!')
+            return
+        }
+        newParticipant.setupPrmopt = setupPrompt
+        newParticipant.introPrompt = hasIntroPrompt ? introPrompt : ''
+        addNewParticipant(newParticipant, doResponseNow)
         setNewParticipant(defaultParticipant)
+        setSetupPrompt('')
+        setIntroPrompt('')
         setIsModalOpen(false)
     }
 
@@ -83,47 +87,39 @@ const ParticipantModal = ({
                         }
                         fullWidth
                     />
+                    {
+                        'The Setup Prompt is used to define this agent, and will always appear at the beginning of the coversation for this agent only'
+                    }
+                    <TextField
+                        label='Setup Prompt'
+                        rows={4}
+                        multiline
+                        value={setupPrompt}
+                        onChange={(e) => setSetupPrompt(e.target.value)}
+                        fullWidth
+                    />
                     <FormControlLabel
                         control={
                             <Checkbox
-                                checked={hasStartPrompt}
+                                checked={hasIntroPrompt}
                                 onChange={(e) =>
-                                    setHasStartPrompt(e.target.checked)
+                                    setHasIntroPrompt(e.target.checked)
                                 }
                                 inputProps={{ 'aria-label': 'controlled' }}
                             />
                         }
-                        label='Prompt before existing conversation'
+                        label='Do Intro Prompt'
                     />
-                    {hasStartPrompt && (
+                    {
+                        'The Intro Prompt is added to the end of the conversation to introduce this agent, and is optional'
+                    }
+                    {hasIntroPrompt && (
                         <TextField
-                            label='Start Prompt'
+                            label='Intro Prompt'
                             rows={4}
                             multiline
-                            value={startPrompt}
-                            onChange={(e) => setStartPrompt(e.target.value)}
-                            fullWidth
-                        />
-                    )}
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={hasEndPrompt}
-                                onChange={(e) =>
-                                    setHasEndPrompt(e.target.checked)
-                                }
-                                inputProps={{ 'aria-label': 'controlled' }}
-                            />
-                        }
-                        label='Prompt after existing conversation'
-                    />
-                    {hasEndPrompt && (
-                        <TextField
-                            label='End Prompt'
-                            rows={4}
-                            multiline
-                            value={endPrompt}
-                            onChange={(e) => setEndPrompt(e.target.value)}
+                            value={introPrompt}
+                            onChange={(e) => setIntroPrompt(e.target.value)}
                             fullWidth
                         />
                     )}
@@ -133,6 +129,18 @@ const ParticipantModal = ({
                         inputProps={{ min: 0.0, max: 2.0, step: 0.01 }}
                         value={newParticipant.temperature}
                         onChange={handleTemperatureChange}
+                    />
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={doResponseNow}
+                                onChange={(e) =>
+                                    setDoResponseNow(e.target.checked)
+                                }
+                                inputProps={{ 'aria-label': 'controlled' }}
+                            />
+                        }
+                        label='Reply immediately'
                     />
                 </div>
                 <Button

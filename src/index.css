@@ -90,8 +90,7 @@ body {
   width: 50vw;
 }
 .participant {
-  background-color: #eee;
-  margin: 0.5rem;
+  padding: 0.5rem;
 }
 .promptInput {
   height: 6rem;

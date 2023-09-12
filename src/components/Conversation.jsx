@@ -23,15 +23,15 @@ const Conversation = () => {
     const [participants, setParticipants] = useState(initialParticipants)
     const [messages, setMessages] = useState(initialMessages)
     const [hostMessage, setHostMessage] = useState('')
-    const [target, setTarget] = useState('audience')
+    const [addressee, setAddressee] = useState('audience')
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [temperature, setTemperature] = useState(0.2)
     const [model, setModel] = useState('gpt-3.5-turbo')
     const [isSystem, setIsSystem] = useState(false)
 
-    const handleParticipantChange = (event) => {
+    const handleAddresseeChange = (event) => {
         const name = event.target.value
-        setTarget(name)
+        setAddressee(name)
         const participant = participants.find((p) => p.name == name)
         if (name == 'all' || name == 'audience') setTemperature(0.2)
         else setTemperature(participant.temperature)
@@ -41,7 +41,7 @@ const Conversation = () => {
         setIsModalOpen(true)
     }
 
-    const addHostMessage = () => {
+    const addHostMessage = async () => {
         const newMessage = {
             role: isSystem ? 'system' : 'user',
             participant: {
@@ -52,22 +52,31 @@ const Conversation = () => {
         }
 
         setMessages([...messages, newMessage])
+
+        participants.forEach((p, i) => {
+            if (addressee == 'all' || addressee == p.name) {
+                chatToParticipant(p, hostMessage)
+            }
+        })
+
+        // await Promise.all(participants.map(async (p) => {
+        //     await chatToParticipant(p, hostMessage)
+        // }))
+
         setHostMessage('')
     }
 
-    const handleSendMessage = async ({ messages, model, temperature }) => {
+    const continueConversation = async (messages, model, temperature) => {
         const response = await ChatClient.continueConversation(
             messages,
             model,
             temperature
         )
 
-        const newMessage = {
+        return {
             role: 'assistant',
             content: response,
         }
-
-        setMessages([...messages, newMessage])
     }
 
     const handleTemperatureChange = (event) => {
@@ -84,11 +93,43 @@ const Conversation = () => {
         setTemperature(newTemperature)
     }
 
-    const logConversation = () => {}
-
-    const addNewParticipant = (newParticipant, startPrompt, endPrompt) => {
+    const addNewParticipant = (newParticipant, doResponseNow) => {
         setParticipants([...participants, newParticipant])
+
+        if (doResponseNow) {
+            chatToParticipant(newParticipant, newParticipant.endPrompt, true)
+        }
     }
+
+    const chatToParticipant = async (participant, prompt, isSystem) => {
+        const conversation = [
+            {
+                role: 'system',
+                content: participant.startPrompt,
+            },
+            ...messages,
+            {
+                role: isSystem ? 'system' : user,
+                content: prompt,
+            },
+        ]
+
+        const responseMessage = await continueConversation(
+            conversation,
+            model,
+            participant.temperature
+        )
+
+        const newMessage = {
+            role: 'assistant',
+            participant,
+            content: responseMessage,
+        }
+
+        setMessages([...messages, newMessage])
+    }
+
+    const logConversation = () => {}
 
     return (
         <div className='container'>
@@ -98,8 +139,8 @@ const Conversation = () => {
                     <FormControl>
                         <InputLabel>To:</InputLabel>
                         <Select
-                            value={target}
-                            onChange={handleParticipantChange}
+                            value={addressee}
+                            onChange={handleAddresseeChange}
                         >
                             <MenuItem value='audience'>Audience</MenuItem>
                             <MenuItem value='all'>All Participants</MenuItem>
