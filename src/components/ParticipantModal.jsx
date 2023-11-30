@@ -22,13 +22,14 @@ const ParticipantModal = ({
     const [newParticipant, setNewParticipant] = useState(defaultParticipant)
     const [doResponseNow, setDoResponseNow] = useState(true)
     const [hasIntroPrompt, setHasIntroPrompt] = useState(false)
+    const [isSystemIntroPrompt, setIsSystemIntroPrompt] = useState(true)
     const [setupPrompt, setSetupPrompt] = useState('')
     const [introPrompt, setIntroPrompt] = useState('')
 
     const handleCreateParticipant = () => {
         newParticipant.setupPrmopt = setupPrompt
         newParticipant.introPrompt = hasIntroPrompt ? introPrompt : ''
-        addNewParticipant(newParticipant, doResponseNow)
+        addNewParticipant(newParticipant, doResponseNow, isSystemIntroPrompt)
         setNewParticipant(defaultParticipant)
         setSetupPrompt('')
         setIntroPrompt('')
@@ -110,6 +111,20 @@ const ParticipantModal = ({
                     {
                         'The Intro Prompt is added to the end of the conversation to introduce this agent, and is optional'
                     }
+                    {hasIntroPrompt && (
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={isSystemIntroPrompt}
+                                    onChange={(e) =>
+                                        setIsSystemIntroPrompt(e.target.checked)
+                                    }
+                                    inputProps={{ 'aria-label': 'controlled' }}
+                                />
+                            }
+                            label='From the System (not the Host)'
+                        />
+                    )}
                     {hasIntroPrompt && (
                         <TextField
                             label='Intro Prompt'

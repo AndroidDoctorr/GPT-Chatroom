@@ -96,11 +96,15 @@ const Conversation = () => {
         setTemperature(newTemperature)
     }
 
-    const addNewParticipant = (newParticipant, doResponseNow) => {
+    const addNewParticipant = (newParticipant, doResponseNow, isSystem) => {
         setParticipants([...participants, newParticipant])
 
         if (doResponseNow && !!newParticipant.introPrompt) {
-            chatToParticipant(newParticipant, newParticipant.introPrompt, true)
+            chatToParticipant(
+                newParticipant,
+                newParticipant.introPrompt,
+                isSystem
+            )
         }
     }
 

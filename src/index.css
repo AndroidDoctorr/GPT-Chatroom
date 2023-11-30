@@ -91,6 +91,8 @@ body {
   padding: 16px;
   border-radius: 4px;
   width: 50vw;
+  max-height: 80%;
+  overflow: auto;
 }
 .participant {
   padding: 0.5rem;
