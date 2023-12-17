@@ -16,6 +16,7 @@ import { GPTClient } from 'gpt-tools'
 import ChatMessage from './ChatMessage'
 import Participant from './Participant'
 import BouncingDotsLoader from './BouncingLoader'
+import fs from 'fs'
 
 const initialParticipants = []
 const initialMessages = []
@@ -103,7 +104,7 @@ const Conversation = () => {
             const introMessage = {
                 role: isSystemIntroPrompt ? 'system' : 'user',
                 participant: {
-                    name:  isSystemIntroPrompt ? 'System' : 'Host',
+                    name: isSystemIntroPrompt ? 'System' : 'Host',
                     color: '#ccc',
                 },
                 content: '' + newParticipant.introPrompt,
@@ -154,18 +155,44 @@ const Conversation = () => {
     }
 
     const logConversation = () => {
-        // (look up how to write to files in JS - there should be a few fairly easy ways)
+        logMessages(messages)
+        logParticipants(participants)
+    }
 
-        // Loop through the list of participants
-        // Turn each one into a string
-        // Put those strings into a file, formatted nicely
+    const logMessages = (messages) => {
+        // Convert messages to CSV
+        const messagesCsv = messages.map(message => {
+            return `${message.role},${message.content},${message.participant.name},${message.participant.color}`
+        }).join('\n')
+    
+        // Create Blob for messages
+        const messagesBlob = new Blob(['role,content,participant_name,participant_color\n' + messagesCsv], { type: 'text/csv;charset=utf-8' })
+        const messagesLink = document.createElement('a')
+        messagesLink.href = URL.createObjectURL(messagesBlob)
+        messagesLink.download = 'messages.csv'
+    
+        // Append the links to the document and trigger a click to initiate the download
+        document.body.appendChild(messagesLink)
+        messagesLink.click()
+        document.body.removeChild(messagesLink)
+    }
 
-        // Loop through the conversation
-        // Turn each message into a string
-        // Put those strings into the same file, also formatted
-        
-        // Maybe some formatting for the whole thing? Like a title/header/footer setup
-        // Save the file locally somewhere
+    const logParticipants = (participants) => {
+        // Convert participants to CSV
+        const participantsCsv = participants.map(participant => {
+            return `${participant.name},${participant.color},${participant.setupPrompt},${participant.introPrompt},${participant.temperature}`
+        }).join('\n')
+    
+        // Create Blob for participants
+        const participantsBlob = new Blob(['name,color,setupPrompt,introPrompt,temperature\n' + participantsCsv], { type: 'text/csv;charset=utf-8' })
+        const participantsLink = document.createElement('a')
+        participantsLink.href = URL.createObjectURL(participantsBlob)
+        participantsLink.download = 'participants.csv'
+    
+        // Append the links to the document and trigger a click to initiate the download    
+        document.body.appendChild(participantsLink)
+        participantsLink.click()
+        document.body.removeChild(participantsLink)
     }
 
     return (
