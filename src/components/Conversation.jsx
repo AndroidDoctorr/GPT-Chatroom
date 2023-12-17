@@ -96,14 +96,14 @@ const Conversation = () => {
         setTemperature(newTemperature)
     }
 
-    const addNewParticipant = (newParticipant, doResponseNow) => {
+    const addNewParticipant = (newParticipant, doResponseNow, isSystemIntroPrompt) => {
         setParticipants([...participants, newParticipant])
 
         if (doResponseNow && !!newParticipant.introPrompt) {
             const introMessage = {
-                role: 'system',
+                role: isSystemIntroPrompt ? 'system' : 'user',
                 participant: {
-                    name: 'System',
+                    name:  isSystemIntroPrompt ? 'System' : 'Host',
                     color: '#ccc',
                 },
                 content: '' + newParticipant.introPrompt,
