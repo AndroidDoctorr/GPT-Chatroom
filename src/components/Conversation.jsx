@@ -60,7 +60,7 @@ const Conversation = () => {
 
         participants.forEach((p, i) => {
             if (addressee == 'all' || addressee == p.name) {
-                chatToParticipant(p, hostMessage)
+                chatToParticipant(p, newMessage)
             }
         })
 
@@ -100,47 +100,73 @@ const Conversation = () => {
         setParticipants([...participants, newParticipant])
 
         if (doResponseNow && !!newParticipant.introPrompt) {
-            chatToParticipant(newParticipant, newParticipant.introPrompt, true)
+            const introMessage = {
+                role: 'system',
+                participant: {
+                    name: 'System',
+                    color: '#ccc',
+                },
+                content: '' + newParticipant.introPrompt,
+            }
+
+            chatToParticipant(newParticipant, introMessage)
         }
     }
 
-    const chatToParticipant = async (participant, prompt, isSystem) => {
-        const messagesFiltered = []
+    const chatToParticipant = async (participant, hostMessage) => {
+        console.log(`Chat to Participant: ${participant ? participant.name : '--'}`)
+        // Get message history
+        let conversation = []
         messages.forEach((m) => {
-            messagesFiltered.push({
+            conversation.push({
                 role: m.role,
                 content: m.content,
             })
         })
-
-        const setupMessage = {
-            role: 'system',
-            content: participant.setupPrmopt,
+        // Add Setup message, if exists
+        if (!!participant.setupPrmopt) {
+            const setupMessage = {
+                role: 'system',
+                content: participant.setupPrmopt,
+            }
+            conversation = [setupMessage, ...conversation]
         }
-        const hostMessage = {
-            role: isSystem ? 'system' : 'user',
-            content: prompt,
-        }
-        const conversation = [setupMessage, ...messagesFiltered, hostMessage]
-
-        const responseMessage = await continueConversation(
+        // Add host message (prmopt) if exists
+        if (!!hostMessage)
+            conversation.push({ role: hostMessage.role, content: hostMessage.content })
+        // Get response from model
+        const response = await continueConversation(
             conversation,
             model,
             participant.temperature
         )
 
-        const newMessage = {
+        console.log(`Chat Response: ${response}`)
+        // Add participant to message
+        const responseMessage = {
             participant,
-            ...responseMessage,
+            ...response,
         }
-
+        // Add to message history
         const newHistory = [...messages]
-        if (hostMessage.role == 'user') newHistory.push(hostMessage)
-        newHistory.push(newMessage)
+        newHistory.push(responseMessage)
         setMessages(newHistory)
     }
 
-    const logConversation = () => {}
+    const logConversation = () => {
+        // (look up how to write to files in JS - there should be a few fairly easy ways)
+
+        // Loop through the list of participants
+        // Turn each one into a string
+        // Put those strings into a file, formatted nicely
+
+        // Loop through the conversation
+        // Turn each message into a string
+        // Put those strings into the same file, also formatted
+        
+        // Maybe some formatting for the whole thing? Like a title/header/footer setup
+        // Save the file locally somewhere
+    }
 
     return (
         <div className='container'>
@@ -213,7 +239,6 @@ const Conversation = () => {
                             <ChatMessage
                                 key={index}
                                 chatMessage={message}
-                                participant={message.participant}
                             />
                         ))}
                         {isLoading && <BouncingDotsLoader />}
@@ -228,6 +253,7 @@ const Conversation = () => {
                         {participants.map((participant, index) => (
                             <Participant
                                 key={index}
+                                doChat={chatToParticipant}
                                 participant={participant}
                             />
                         ))}
