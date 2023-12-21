@@ -170,7 +170,7 @@ const Conversation = () => {
         if (!!hostMessage)
             conversation.push({
                 role: hostMessage.role,
-                content: hostMessage.content,
+                content: `${hostMessage.participant.name.toUpperCase()}: ${hostMessage.content}`,
             })
 
         // Get response from model
@@ -327,7 +327,7 @@ const Conversation = () => {
                 <div className='section-row'>
                     <Paper className='list conversation'>
                         {messages.map((message, index) => (
-                            <ChatMessage key={index} chatMessage={message} />
+                            <ChatMessage key={index} chatMessage={message} isLeftHand={["System", "Host"].indexOf(message.participant.name) > -1} />
                         ))}
                         {isLoading && <BouncingDotsLoader />}
                     </Paper>
