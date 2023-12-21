@@ -31,7 +31,7 @@ const Conversation = () => {
     const [hostMessage, setHostMessage] = useState('')
     const [addressee, setAddressee] = useState('audience')
     const [isModalOpen, setIsModalOpen] = useState(false)
-    const [temperature, setTemperature] = useState(0.2)
+    // const [temperature, setTemperature] = useState(0.2)
     const [maxTokens, setMaxTokens] = useState(1024)
     const [model, setModel] = useState('gpt-3.5-turbo')
     const [isSystem, setIsSystem] = useState(false)
@@ -43,9 +43,9 @@ const Conversation = () => {
     const handleAddresseeChange = (event) => {
         const name = event.target.value
         setAddressee(name)
-        const participant = participants.find((p) => p.name == name)
-        if (name == 'all' || name == 'audience') setTemperature(0.2)
-        else setTemperature(participant.temperature)
+        // const participant = participants.find((p) => p.name == name)
+        // if (name == 'all' || name == 'audience') setTemperature(0.2)
+        // else setTemperature(participant.temperature)
     }
 
     const handleAddParticipant = () => {
@@ -161,7 +161,7 @@ const Conversation = () => {
         messages.forEach((m) => {
             conversation.push({
                 role: m.role,
-                content: `${(participant.name + '').toUpperCase()}: ${
+                content: `${(m.participant.name + '').toUpperCase()}: ${
                     m.content
                 }`,
             })
