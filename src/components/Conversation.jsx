@@ -78,7 +78,8 @@ const Conversation = () => {
         const response = await client.continueConversation(
             messages,
             model,
-            temperature
+            temperature,
+            maxTokens,
         )
         setIsLoading(false)
 
@@ -177,7 +178,8 @@ const Conversation = () => {
         const response = await continueConversation(
             conversation,
             model,
-            participant.temperature
+            participant.temperature,
+            maxTokens,
         )
 
         console.log(`Chat Response: ${response}`)
