@@ -182,17 +182,16 @@ const Conversation = () => {
             maxTokens,
         )
 
-        console.log(`Chat Response: ${response}`)
+        console.log(`Chat Response: ${response.content}`)
         // Add participant to message
         const responseMessage = {
             participant,
             ...response,
         }
         // Add to message history
-        const newHistory = [...messages]
-        if (!!hostMessage) newHistory.push(hostMessage)
-        newHistory.push(responseMessage)
-        setMessages(newHistory)
+        setMessages((prevMessages) => {
+            return [...prevMessages, responseMessage]
+        })
     }
 
     const logConversation = () => {
