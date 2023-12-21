@@ -16,7 +16,6 @@ import { GPTClient } from 'gpt-tools'
 import ChatMessage from './ChatMessage'
 import Participant from './Participant'
 import BouncingDotsLoader from './BouncingLoader'
-import fs from 'fs'
 
 const initialParticipants = []
 const initialMessages = []
@@ -28,6 +27,7 @@ const Conversation = () => {
     const [addressee, setAddressee] = useState('audience')
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [temperature, setTemperature] = useState(0.2)
+    const [maxTokens, setMaxTokens] = useState(1024)
     const [model, setModel] = useState('gpt-3.5-turbo')
     const [isSystem, setIsSystem] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
@@ -83,6 +83,8 @@ const Conversation = () => {
         }
     }
 
+    /*
+    // Not currently implemented - participants have own temperatures
     const handleTemperatureChange = (event) => {
         let newTemperature = parseFloat(event.target.value)
         // Ensure the value is within the desired range (0.0 to 2.0)
@@ -96,8 +98,25 @@ const Conversation = () => {
 
         setTemperature(newTemperature)
     }
+    */
+    const handleMaxTokenChange = (event) => {
+        let newMaxTokens = parseInt(event.target.value)
+        if (isNaN(newMaxTokens)) {
+            newMaxTokens = 1024 // Default to 1024 if it's not a valid number
+        } else if (newMaxTokens < 1) {
+            newMaxTokens = 1 // Clamp to the minimum value
+        } else if (newMaxTokens > 4096) {
+            newMaxTokens = 4096 // Clamp to the maximum value
+        }
 
-    const addNewParticipant = (newParticipant, doResponseNow, isSystemIntroPrompt) => {
+        setMaxTokens(newMaxTokens)
+    }
+
+    const addNewParticipant = (
+        newParticipant,
+        doResponseNow,
+        isSystemIntroPrompt
+    ) => {
         setParticipants([...participants, newParticipant])
 
         if (doResponseNow && !!newParticipant.introPrompt) {
@@ -115,13 +134,17 @@ const Conversation = () => {
     }
 
     const chatToParticipant = async (participant, hostMessage) => {
-        console.log(`Chat to Participant: ${participant ? participant.name : '--'}`)
+        console.log(
+            `Chat to Participant: ${participant ? participant.name : '--'}`
+        )
         // Get message history
         let conversation = []
         messages.forEach((m) => {
             conversation.push({
                 role: m.role,
-                content: m.content,
+                content: `${(participant.name + '').toUpperCase()}: ${
+                    m.content
+                }`,
             })
         })
         // Add Setup message, if exists
@@ -134,7 +157,10 @@ const Conversation = () => {
         }
         // Add host message (prmopt) if exists
         if (!!hostMessage)
-            conversation.push({ role: hostMessage.role, content: hostMessage.content })
+            conversation.push({
+                role: hostMessage.role,
+                content: hostMessage.content,
+            })
         // Get response from model
         const response = await continueConversation(
             conversation,
@@ -149,7 +175,7 @@ const Conversation = () => {
             ...response,
         }
         // Add to message history
-        const newHistory = [...messages]
+        const newHistory = [...messages, hostMessage]
         newHistory.push(responseMessage)
         setMessages(newHistory)
     }
@@ -161,16 +187,21 @@ const Conversation = () => {
 
     const logMessages = (messages) => {
         // Convert messages to CSV
-        const messagesCsv = messages.map(message => {
-            return `${message.role},${message.content},${message.participant.name},${message.participant.color}`
-        }).join('\n')
-    
+        const messagesCsv = messages
+            .map((message) => {
+                return `${message.role},${message.content},${message.participant.name},${message.participant.color}`
+            })
+            .join('\n')
+
         // Create Blob for messages
-        const messagesBlob = new Blob(['role,content,participant_name,participant_color\n' + messagesCsv], { type: 'text/csv;charset=utf-8' })
+        const messagesBlob = new Blob(
+            ['role,content,participant_name,participant_color\n' + messagesCsv],
+            { type: 'text/csv;charset=utf-8' }
+        )
         const messagesLink = document.createElement('a')
         messagesLink.href = URL.createObjectURL(messagesBlob)
         messagesLink.download = 'messages.csv'
-    
+
         // Append the links to the document and trigger a click to initiate the download
         document.body.appendChild(messagesLink)
         messagesLink.click()
@@ -179,17 +210,25 @@ const Conversation = () => {
 
     const logParticipants = (participants) => {
         // Convert participants to CSV
-        const participantsCsv = participants.map(participant => {
-            return `${participant.name},${participant.color},${participant.setupPrompt},${participant.introPrompt},${participant.temperature}`
-        }).join('\n')
-    
+        const participantsCsv = participants
+            .map((participant) => {
+                return `${participant.name},${participant.color},${participant.setupPrompt},${participant.introPrompt},${participant.temperature}`
+            })
+            .join('\n')
+
         // Create Blob for participants
-        const participantsBlob = new Blob(['name,color,setupPrompt,introPrompt,temperature\n' + participantsCsv], { type: 'text/csv;charset=utf-8' })
+        const participantsBlob = new Blob(
+            [
+                'name,color,setupPrompt,introPrompt,temperature\n' +
+                    participantsCsv,
+            ],
+            { type: 'text/csv;charset=utf-8' }
+        )
         const participantsLink = document.createElement('a')
         participantsLink.href = URL.createObjectURL(participantsBlob)
         participantsLink.download = 'participants.csv'
-    
-        // Append the links to the document and trigger a click to initiate the download    
+
+        // Append the links to the document and trigger a click to initiate the download
         document.body.appendChild(participantsLink)
         participantsLink.click()
         document.body.removeChild(participantsLink)
@@ -218,6 +257,7 @@ const Conversation = () => {
                             ))}
                         </Select>
                     </FormControl>
+                    {/*
                     <FormControl>
                         <TextField
                             label='Temperature'
@@ -225,6 +265,17 @@ const Conversation = () => {
                             inputProps={{ min: 0.0, max: 2.0, step: 0.01 }}
                             value={temperature}
                             onChange={handleTemperatureChange}
+                        />
+                    </FormControl>
+                            */}
+
+                    <FormControl>
+                        <TextField
+                            label='Max Tokens'
+                            type='number'
+                            inputProps={{ min: 0, max: 4096, step: 1 }}
+                            value={maxTokens}
+                            onChange={handleMaxTokenChange}
                         />
                     </FormControl>
                     <FormControlLabel
@@ -263,10 +314,7 @@ const Conversation = () => {
                 <div className='section-row'>
                     <Paper className='list conversation'>
                         {messages.map((message, index) => (
-                            <ChatMessage
-                                key={index}
-                                chatMessage={message}
-                            />
+                            <ChatMessage key={index} chatMessage={message} />
                         ))}
                         {isLoading && <BouncingDotsLoader />}
                     </Paper>

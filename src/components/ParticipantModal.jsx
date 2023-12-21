@@ -40,7 +40,7 @@ const ParticipantModal = ({
         let newTemperature = parseFloat(event.target.value)
         // Ensure the value is within the desired range (0.0 to 2.0)
         if (isNaN(newTemperature)) {
-            newTemperature = 0.0 // Default to 0.0 if it's not a valid number
+            newTemperature = 0.2 // Default to 0.0 if it's not a valid number
         } else if (newTemperature < 0.0) {
             newTemperature = 0.0 // Clamp to the minimum value
         } else if (newTemperature > 2.0) {
