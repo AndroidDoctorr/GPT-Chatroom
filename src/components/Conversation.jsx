@@ -31,7 +31,7 @@ const Conversation = () => {
     const [hostMessage, setHostMessage] = useState('')
     const [addressee, setAddressee] = useState('audience')
     const [isModalOpen, setIsModalOpen] = useState(false)
-    const [temperature, setTemperature] = useState(0.2)
+    // const [temperature, setTemperature] = useState(0.2)
     const [maxTokens, setMaxTokens] = useState(1024)
     const [model, setModel] = useState('gpt-3.5-turbo')
     const [isSystem, setIsSystem] = useState(false)
@@ -43,9 +43,9 @@ const Conversation = () => {
     const handleAddresseeChange = (event) => {
         const name = event.target.value
         setAddressee(name)
-        const participant = participants.find((p) => p.name == name)
-        if (name == 'all' || name == 'audience') setTemperature(0.2)
-        else setTemperature(participant.temperature)
+        // const participant = participants.find((p) => p.name == name)
+        // if (name == 'all' || name == 'audience') setTemperature(0.2)
+        // else setTemperature(participant.temperature)
     }
 
     const handleAddParticipant = () => {
@@ -78,7 +78,8 @@ const Conversation = () => {
         const response = await client.continueConversation(
             messages,
             model,
-            temperature
+            temperature,
+            maxTokens
         )
         setIsLoading(false)
 
@@ -161,14 +162,18 @@ const Conversation = () => {
         messages.forEach((m) => {
             conversation.push({
                 role: m.role,
-                content: m.content,
+                content: `${(m.participant.name + '').toUpperCase()}>>${
+                    m.content
+                }`,
             })
         })
         // Add host message (prmopt) if exists
         if (!!hostMessage)
             conversation.push({
                 role: hostMessage.role,
-                content: hostMessage.content,
+                content: `${hostMessage.participant.name.toUpperCase()}: ${
+                    hostMessage.content
+                }`,
             })
 
         conversation.push({
@@ -182,7 +187,8 @@ const Conversation = () => {
         const response = await continueConversation(
             conversation,
             model,
-            participant.temperature
+            participant.temperature,
+            maxTokens
         )
 
         console.log(`Chat Response: ${response}`)
@@ -204,10 +210,9 @@ const Conversation = () => {
             ...response,
         }
         // Add to message history
-        const newHistory = [...messages]
-        if (!!hostMessage) newHistory.push(hostMessage)
-        newHistory.push(responseMessage)
-        setMessages(newHistory)
+        setMessages((prevMessages) => {
+            return [...prevMessages, responseMessage]
+        })
     }
 
     const logConversation = () => {
@@ -344,7 +349,15 @@ const Conversation = () => {
                 <div className='section-row'>
                     <Paper className='list conversation'>
                         {messages.map((message, index) => (
-                            <ChatMessage key={index} chatMessage={message} />
+                            <ChatMessage
+                                key={index}
+                                chatMessage={message}
+                                isLeftHand={
+                                    ['System', 'Host'].indexOf(
+                                        message.participant.name
+                                    ) > -1
+                                }
+                            />
                         ))}
                         {isLoading && <BouncingDotsLoader />}
                     </Paper>
