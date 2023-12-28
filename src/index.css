@@ -74,9 +74,9 @@ body {
   background-color: #efefef;
 }
 .chatMessage > span {
-    flex-grow: 1;
-    margin: 0 1rem;
-    text-align: start;
+  flex-grow: 1;
+  margin: 0 1rem;
+  text-align: start;
 }
 .participantList {
   height: 4rem;
@@ -99,10 +99,13 @@ body {
 }
 .participant > button {
   float: right;
-    border: none;
-    border-radius: 0.25rem;
-    padding: 0.25rem 0.5rem;
-    background-color: #fff884;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background-color: #1ee100;
+  color: white;
+  font-size: large;
+  font-weight: bold;
 }
 .promptInput {
   height: 6rem;
