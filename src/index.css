@@ -51,6 +51,10 @@ body {
   display: flex;
   flex-direction: column;
 }
+.section-segment {
+  display: flex;
+  padding: 0.5rem;
+}
 .section-row {
   display: flex;
   flex-direction: row;
@@ -114,7 +118,6 @@ body {
   width: 100%;
 }
 .colorSample {
-  top: 0.5rem;
   margin-left: 1rem;
   display: inline-flex;
   width: 6rem;

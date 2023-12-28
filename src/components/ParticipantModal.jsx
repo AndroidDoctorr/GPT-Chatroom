@@ -18,6 +18,7 @@ const ParticipantModal = ({
         color: getRandomColor(),
         temperature: 0.2,
         setupPrmopt: '',
+        model: 'gpt-3.5-turbo',
     }
     const [newParticipant, setNewParticipant] = useState(defaultParticipant)
     const [doResponseNow, setDoResponseNow] = useState(true)
@@ -50,6 +51,12 @@ const ParticipantModal = ({
         setNewParticipant({ ...newParticipant, temperature: newTemperature })
     }
 
+    const handleModelChange = (event) => {
+        let newModel = event.target.value
+
+        setModel(newModel)
+    }
+
     const setRandomColor = () => {
         setNewParticipant({ ...newParticipant, color: getRandomColor() })
     }
@@ -62,17 +69,36 @@ const ParticipantModal = ({
         >
             <div className='modalContent'>
                 <h2>Add Participant</h2>
-                <Button
-                    variant='contained'
-                    color='primary'
-                    onClick={setRandomColor}
-                >
-                    Color
-                </Button>
-                <div
-                    className='colorSample'
-                    style={{ backgroundColor: newParticipant.color }}
-                ></div>
+                <div className='section'>
+                    <div className='section-segment'>
+                        <Button
+                            variant='contained'
+                            color='primary'
+                            onClick={setRandomColor}
+                        >
+                            Color
+                        </Button>
+                        <div
+                            className='colorSample'
+                            style={{ backgroundColor: newParticipant.color }}
+                        ></div>
+                    </div>
+
+                    {/* // TODO: Use a dropdown to show suggested models. Use a checkbox with the option "Use Custom Model" to change to an input */}
+
+                    <div className='section-segment'>
+                        <TextField
+                            label='Model'
+                            value={newParticipant.model}
+                            onChange={(e) =>
+                                setModel({
+                                    ...newParticipant,
+                                    model: e.target.value,
+                                })
+                            }
+                        />
+                    </div>
+                </div>
                 <div className='section'>
                     <TextField
                         label='Name'
