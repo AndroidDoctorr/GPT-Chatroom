@@ -31,9 +31,7 @@ const Conversation = () => {
     const [hostMessage, setHostMessage] = useState('')
     const [addressee, setAddressee] = useState('audience')
     const [isModalOpen, setIsModalOpen] = useState(false)
-    // const [temperature, setTemperature] = useState(0.2)
     const [maxTokens, setMaxTokens] = useState(1024)
-    const [model, setModel] = useState('gpt-3.5-turbo')
     const [isSystem, setIsSystem] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
 
@@ -43,9 +41,6 @@ const Conversation = () => {
     const handleAddresseeChange = (event) => {
         const name = event.target.value
         setAddressee(name)
-        // const participant = participants.find((p) => p.name == name)
-        // if (name == 'all' || name == 'audience') setTemperature(0.2)
-        // else setTemperature(participant.temperature)
     }
 
     const handleAddParticipant = () => {
@@ -89,22 +84,6 @@ const Conversation = () => {
         }
     }
 
-    /*
-    // Not currently implemented - participants have own temperatures
-    const handleTemperatureChange = (event) => {
-        let newTemperature = parseFloat(event.target.value)
-        // Ensure the value is within the desired range (0.0 to 2.0)
-        if (isNaN(newTemperature)) {
-            newTemperature = 0.0 // Default to 0.0 if it's not a valid number
-        } else if (newTemperature < 0.0) {
-            newTemperature = 0.0 // Clamp to the minimum value
-        } else if (newTemperature > 2.0) {
-            newTemperature = 2.0 // Clamp to the maximum value
-        }
-
-        setTemperature(newTemperature)
-    }
-    */
     const handleMaxTokenChange = (event) => {
         let newMaxTokens = parseInt(event.target.value)
         if (isNaN(newMaxTokens)) {
@@ -186,7 +165,7 @@ const Conversation = () => {
         // Get response from model
         const response = await continueConversation(
             conversation,
-            model,
+            participant.model,
             participant.temperature,
             maxTokens
         )
@@ -292,17 +271,6 @@ const Conversation = () => {
                             ))}
                         </Select>
                     </FormControl>
-                    {/*
-                    <FormControl>
-                        <TextField
-                            label='Temperature'
-                            type='number'
-                            inputProps={{ min: 0.0, max: 2.0, step: 0.01 }}
-                            value={temperature}
-                            onChange={handleTemperatureChange}
-                        />
-                    </FormControl>
-                            */}
 
                     <FormControl>
                         <TextField
