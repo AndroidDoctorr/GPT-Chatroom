@@ -79,7 +79,7 @@ const Conversation = () => {
             messages,
             model,
             temperature,
-            maxTokens,
+            maxTokens
         )
         setIsLoading(false)
 
@@ -163,7 +163,7 @@ const Conversation = () => {
             conversation.push({
                 role: m.role,
                 content: `${(m.participant.name + '').toUpperCase()}>>${
-                    m.content,
+                    m.content
                 }`,
             })
         })
