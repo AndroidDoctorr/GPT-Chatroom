@@ -1,12 +1,14 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import {
     TextField,
     Button,
     Modal,
     FormControlLabel,
     Checkbox,
+    Popper,
 } from '@mui/material'
 import { getRandomColor } from '../utils/color'
+import { SketchPicker } from 'react-color'
 
 const ParticipantModal = ({
     isModalOpen,
@@ -26,6 +28,9 @@ const ParticipantModal = ({
     const [isSystemIntroPrompt, setIsSystemIntroPrompt] = useState(true)
     const [setupPrompt, setSetupPrompt] = useState('')
     const [introPrompt, setIntroPrompt] = useState('')
+    const [isColorPickerOpen, setisColorPickerOpen] = useState(false)
+
+    let colorPickerToggle = useRef()
 
     const handleCreateParticipant = () => {
         newParticipant.setupPrmopt = setupPrompt
@@ -61,6 +66,13 @@ const ParticipantModal = ({
         setNewParticipant({ ...newParticipant, color: getRandomColor() })
     }
 
+    const handleColorChange = (color) => {
+        setNewParticipant({
+            ...newParticipant,
+            color: color.hex,
+        })
+    }
+
     return (
         <Modal
             open={isModalOpen}
@@ -78,10 +90,31 @@ const ParticipantModal = ({
                         >
                             Color
                         </Button>
-                        <div
+
+                        <button
+                            ref={colorPickerToggle}
+                            aria-describedby={'colorPicker'}
+                            type='button'
                             className='colorSample'
                             style={{ backgroundColor: newParticipant.color }}
-                        ></div>
+                            onClick={() =>
+                                setisColorPickerOpen(!isColorPickerOpen)
+                            }
+                        ></button>
+                        <Popper
+                            id={'colorPicker'}
+                            open={isColorPickerOpen}
+                            anchorEl={() => colorPickerToggle.current}
+                            placement='bottom'
+                            style={{ zIndex: 2000 }}
+                        >
+                            {
+                                <SketchPicker
+                                    color={newParticipant.color}
+                                    onChange={handleColorChange}
+                                />
+                            }
+                        </Popper>
                     </div>
 
                     {/* // TODO: Use a dropdown to show suggested models. Use a checkbox with the option "Use Custom Model" to change to an input */}
