@@ -1,12 +1,16 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import {
     TextField,
     Button,
     Modal,
     FormControlLabel,
     Checkbox,
+    Popper,
+    Select,
+    MenuItem,
 } from '@mui/material'
 import { getRandomColor } from '../utils/color'
+import { SketchPicker } from 'react-color'
 
 const ParticipantModal = ({
     isModalOpen,
@@ -18,6 +22,7 @@ const ParticipantModal = ({
         color: getRandomColor(),
         temperature: 0.2,
         setupPrmopt: '',
+        model: 'gpt-3.5-turbo',
     }
     const [newParticipant, setNewParticipant] = useState(defaultParticipant)
     const [doResponseNow, setDoResponseNow] = useState(true)
@@ -25,6 +30,23 @@ const ParticipantModal = ({
     const [isSystemIntroPrompt, setIsSystemIntroPrompt] = useState(true)
     const [setupPrompt, setSetupPrompt] = useState('')
     const [introPrompt, setIntroPrompt] = useState('')
+    const [isColorPickerOpen, setisColorPickerOpen] = useState(false)
+    const [isCustomModel, setIsCustomModel] = useState(false)
+
+    const modelOptions = [
+        'gpt-3.5-turbo',
+        'gpt-3.5-turbo-1106',
+        'gpt-3.5-turbo-16k',
+        'gpt-3.5-turbo-instruct',
+        'gpt-4',
+        'gpt-4-32k',
+        'gpt-4-0613',
+        'gpt-4-32k-0613',
+        'gpt-4-vision-preview',
+        'gpt-4-1106-preview',
+    ]
+
+    let colorPickerToggle = useRef()
 
     const handleCreateParticipant = () => {
         newParticipant.setupPrmopt = setupPrompt
@@ -50,8 +72,19 @@ const ParticipantModal = ({
         setNewParticipant({ ...newParticipant, temperature: newTemperature })
     }
 
+    const handleModelChange = (event) => {
+        setNewParticipant({ ...newParticipant, model: event.target.value })
+    }
+
     const setRandomColor = () => {
         setNewParticipant({ ...newParticipant, color: getRandomColor() })
+    }
+
+    const handleColorChange = (color) => {
+        setNewParticipant({
+            ...newParticipant,
+            color: color.hex,
+        })
     }
 
     return (
@@ -62,17 +95,78 @@ const ParticipantModal = ({
         >
             <div className='modalContent'>
                 <h2>Add Participant</h2>
-                <Button
-                    variant='contained'
-                    color='primary'
-                    onClick={setRandomColor}
-                >
-                    Color
-                </Button>
-                <div
-                    className='colorSample'
-                    style={{ backgroundColor: newParticipant.color }}
-                ></div>
+                <div className='section'>
+                    <div className='section-segment'>
+                        <Button
+                            variant='contained'
+                            color='primary'
+                            onClick={setRandomColor}
+                        >
+                            Color
+                        </Button>
+
+                        <button
+                            ref={colorPickerToggle}
+                            aria-describedby={'colorPicker'}
+                            type='button'
+                            className='colorSample'
+                            style={{ backgroundColor: newParticipant.color }}
+                            onClick={() =>
+                                setisColorPickerOpen(!isColorPickerOpen)
+                            }
+                        ></button>
+                        <Popper
+                            id={'colorPicker'}
+                            open={isColorPickerOpen}
+                            anchorEl={() => colorPickerToggle.current}
+                            placement='bottom'
+                            style={{ zIndex: 2000 }}
+                        >
+                            {
+                                <SketchPicker
+                                    color={newParticipant.color}
+                                    onChange={handleColorChange}
+                                />
+                            }
+                        </Popper>
+                    </div>
+
+                    {/* // TODO: Use a dropdown to show suggested models. Use a checkbox with the option "Use Custom Model" to change to an input */}
+
+                    <div className='section-segment'>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={isCustomModel}
+                                    onChange={(e) =>
+                                        setIsCustomModel(e.target.checked)
+                                    }
+                                />
+                            }
+                            label='Use Custom Model'
+                        />
+                        {isCustomModel ? (
+                            <TextField
+                                label='Model'
+                                value={newParticipant.model}
+                                onChange={handleModelChange}
+                            />
+                        ) : (
+                            <Select
+                                label='Model'
+                                value={newParticipant.model}
+                                onChange={handleModelChange}
+                                fullWidth
+                            >
+                                {modelOptions.map((model) => (
+                                    <MenuItem key={model} value={model}>
+                                        {model}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        )}
+                    </div>
+                </div>
                 <div className='section'>
                     <TextField
                         label='Name'
