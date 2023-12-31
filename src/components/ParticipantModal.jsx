@@ -6,6 +6,8 @@ import {
     FormControlLabel,
     Checkbox,
     Popper,
+    Select,
+    MenuItem,
 } from '@mui/material'
 import { getRandomColor } from '../utils/color'
 import { SketchPicker } from 'react-color'
@@ -29,6 +31,20 @@ const ParticipantModal = ({
     const [setupPrompt, setSetupPrompt] = useState('')
     const [introPrompt, setIntroPrompt] = useState('')
     const [isColorPickerOpen, setisColorPickerOpen] = useState(false)
+    const [isCustomModel, setIsCustomModel] = useState(false)
+
+    const modelOptions = [
+        'gpt-3.5-turbo',
+        'gpt-3.5-turbo-1106',
+        'gpt-3.5-turbo-16k',
+        'gpt-3.5-turbo-instruct',
+        'gpt-4',
+        'gpt-4-32k',
+        'gpt-4-0613',
+        'gpt-4-32k-0613',
+        'gpt-4-vision-preview',
+        'gpt-4-1106-preview',
+    ]
 
     let colorPickerToggle = useRef()
 
@@ -57,9 +73,7 @@ const ParticipantModal = ({
     }
 
     const handleModelChange = (event) => {
-        let newModel = event.target.value
-
-        setModel(newModel)
+        setNewParticipant({ ...newParticipant, model: event.target.value })
     }
 
     const setRandomColor = () => {
@@ -120,16 +134,37 @@ const ParticipantModal = ({
                     {/* // TODO: Use a dropdown to show suggested models. Use a checkbox with the option "Use Custom Model" to change to an input */}
 
                     <div className='section-segment'>
-                        <TextField
-                            label='Model'
-                            value={newParticipant.model}
-                            onChange={(e) =>
-                                setModel({
-                                    ...newParticipant,
-                                    model: e.target.value,
-                                })
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={isCustomModel}
+                                    onChange={(e) =>
+                                        setIsCustomModel(e.target.checked)
+                                    }
+                                />
                             }
+                            label='Use Custom Model'
                         />
+                        {isCustomModel ? (
+                            <TextField
+                                label='Model'
+                                value={newParticipant.model}
+                                onChange={handleModelChange}
+                            />
+                        ) : (
+                            <Select
+                                label='Model'
+                                value={newParticipant.model}
+                                onChange={handleModelChange}
+                                fullWidth
+                            >
+                                {modelOptions.map((model) => (
+                                    <MenuItem key={model} value={model}>
+                                        {model}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        )}
                     </div>
                 </div>
                 <div className='section'>
